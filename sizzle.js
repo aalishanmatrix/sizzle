@@ -698,7 +698,13 @@ for ( var type in Expr.match ) {
 }
 
 var makeArray = function(array, results) {
-	array = Array.prototype.slice.call( array, 0 );
+	// Take the array parameter and create a 'real' Array object and pass in the elements.
+	// This is necessary on BlackBerry as using Array.prototype.slice on a NodeList object returns an array of undefined elements... weird.
+	var convert = [];
+	for (var i = 0; i < array.length; i++) {
+		convert[i] = array[i];
+	}
+	array = Array.prototype.slice.call( convert, 0 );
 
 	if ( results ) {
 		results.push.apply( results, array );
