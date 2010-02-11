@@ -700,6 +700,8 @@ for ( var type in Expr.match ) {
 var makeArray = function(array, results) {
 	// Take the array parameter and create a 'real' Array object and pass in the elements.
 	// This is necessary on BlackBerry as using Array.prototype.slice on a NodeList object returns an array of undefined elements... weird.
+	// This was brought to our attention by Clement Uster, who deserves credit for the research he did to uncover this.
+	// You can find him on twitter at cluster88 and on github at github.com/cluster
 	var convert = [];
 	for (var i = 0; i < array.length; i++) {
 		convert[i] = array[i];
