@@ -698,14 +698,6 @@ for ( var type in Expr.match ) {
 }
 
 var makeArray = function(array, results) {
-	// Take the array parameter and create a 'real' Array object and pass in the elements.
-	// This is necessary on BlackBerry as using Array.prototype.slice on a NodeList object returns an array of undefined elements... weird.
-	// This was brought to our attention by Clement Uster, who deserves credit for the research he did to uncover this.
-	// You can find him on twitter at cluster88 and on github at github.com/cluster
-	var convert = [];
-	for (var i = 0; i < array.length; i++) {
-		convert[i] = array[i];
-	}
 	array = Array.prototype.slice.call( convert, 0 );
 
 	if ( results ) {
@@ -719,8 +711,19 @@ var makeArray = function(array, results) {
 // Perform a simple check to determine if the browser is capable of
 // converting a NodeList to an array using builtin methods.
 try {
-	Array.prototype.slice.call( document.documentElement.childNodes, 0 );
-
+	// This is necessary on BlackBerry as using Array.prototype.slice on a NodeList object returns an array of undefined elements... weird.
+	// Since the BlackBerry implementation doesn't raise an exception per se, let's just check the contents of the returned array after the slice
+	// call and see if the elements are undefined. If they are, throw an exception to trigger the fallback makeArray override.
+	// This was brought to our attention by Clement Uster, who deserves credit for the research he did to uncover this.
+	// You can find him on twitter at cluster88 and on github at github.com/cluster
+	var nodeList = Array.prototype.slice.call( document.documentElement.childNodes, 0 );
+	var listOK = true;
+	for (var i = 0; i < nodeList.length; i++) {
+		listOK = listOK && (nodeList[i] !== undefined);
+	}
+	if (!listOK) {
+		throw('Array.slice called with NodeList object returns undefined - bad implementation!');
+	}
 // Provide a fallback method if it does not work
 } catch(e){
 	makeArray = function(array, results) {
